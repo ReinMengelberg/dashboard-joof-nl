@@ -1,5 +1,5 @@
-import prisma from "./DbConnection";
-import { Prisma, User } from "../../generated/prisma";
+import prisma from "./GeneralConnection";
+import { Prisma, User } from "~~/generated/prisma";
 
 export type CreateUserData = Omit<Prisma.UserUncheckedCreateInput,
   "id" | "created_at" | "updated_at"
@@ -47,30 +47,30 @@ export const UserRepository = {
   },
 
   async findById(id: number, options?: { include?: Prisma.UserInclude; select?: Prisma.UserSelect }): Promise<User | null> {
-    return await prisma.user.findUnique({
-      where: { id },
-      include: options?.include,
-      select: options?.select as any,
+    return prisma.user.findUnique({
+        where: {id},
+        include: options?.include,
+        select: options?.select as any,
     } as Prisma.UserFindUniqueArgs);
   },
 
   async findByEmail(email: string, options?: { include?: Prisma.UserInclude; select?: Prisma.UserSelect }): Promise<User | null> {
-    return await prisma.user.findUnique({
-      where: { email },
-      include: options?.include,
-      select: options?.select as any,
+    return prisma.user.findUnique({
+        where: {email},
+        include: options?.include,
+        select: options?.select as any,
     } as Prisma.UserFindUniqueArgs);
   },
 
   async list(params: ListUsersParams = {}): Promise<User[]> {
     const { skip, take, where, orderBy, include, select } = params;
-    return await prisma.user.findMany({
-      skip,
-      take,
-      where,
-      orderBy: orderBy as any,
-      include,
-      select: select as any,
+    return prisma.user.findMany({
+        skip,
+        take,
+        where,
+        orderBy: orderBy as any,
+        include,
+        select: select as any,
     } as Prisma.UserFindManyArgs);
   },
 

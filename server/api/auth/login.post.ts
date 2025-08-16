@@ -4,7 +4,7 @@ import { UserRepository } from "~~/server/db/UserRepository";
 import { setResponseStatus } from 'h3'
 
 const bodySchema = z.object({
-    email: z.string().email(),
+    email: z.email(),
     password: z.string().min(8)
 })
 
