@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Resource {
+  id             Int      @id @default(autoincrement())
+  name           String
+  description    String   @db.Text
+  source         String
+  administrative Boolean  @default(false)
+  outgoing_feeds Json // Array of strings stored as JSON
+  incoming_feeds Json // Array of strings stored as JSON
+  show_incoming  Boolean  @default(false)
+  only_nl        Boolean  @default(false)
+  only_unique    Boolean  @default(false)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  // Relations
+  users           UserResource[]
+  defaultForUsers User[]         @relation("DefaultResource")
+
+  @@map("resources")
+}
+
+model User {
+  id                        Int       @id @default(autoincrement())
+  name                      String
+  email                     String    @unique
+  admin                     Boolean   @default(false)
+  password                  String
+  password_reset_token      String?
+  password_reset_expires_at DateTime?
+  verified_at               DateTime?
+  created_at                DateTime  @default(now())
+  updated_at                DateTime  @updatedAt
+
+  // Foreign key for default resource
+  default_resource_id Int?
+
+  // Relations
+  default_resource Resource?      @relation("DefaultResource", fields: [default_resource_id], references: [id])
+  resources        UserResource[]
+
+  @@map("users")
+}
+
+// Pivot table for many-to-many relationship between User and Resource
+model UserResource {
+  id          Int      @id @default(autoincrement())
+  user_id     Int
+  resource_id Int
+  created_at  DateTime @default(now())
+
+  // Relations
+  user     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  resource Resource @relation(fields: [resource_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, resource_id])
+  @@map("user_resources")
+}
