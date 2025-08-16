@@ -14,7 +14,7 @@ export default defineNuxtConfig({
     routeRules: {
         '/': { redirect: '/app/home' }, // change to your default page
     },
-    modules: ['shadcn-nuxt', 'nuxt-auth-utils'],
+    modules: ['shadcn-nuxt', 'nuxt-auth-utils', '@pinia/nuxt'],
     shadcn: {
         /**
          * Prefix for all the imported component

@@ -6,7 +6,7 @@ definePageMeta({
 </script>
 
 <template>
-
+  <h1>THIS IS THE HOMEPAGE</h1>
 </template>
 
 <style scoped>
