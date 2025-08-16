@@ -4,14 +4,16 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
-    css: ['~/assets/css/tailwind.css'],
-
+    css: ['~~/assets/css/tailwind.css'],
+    srcDir: '.',
     vite: {
         plugins: [
             tailwindcss(),
         ],
     },
-
+    routeRules: {
+        '/': { redirect: '/app/home' }, // change to your default page
+    },
     modules: ['shadcn-nuxt', 'nuxt-auth-utils'],
     shadcn: {
         /**

@@ -1,8 +1,7 @@
 import {defineStore} from 'pinia'
 import AuthService, {LoginRequest} from '../services/api/AuthService'
-import {IApiResponse} from '../src/helpers/ApiResponse'
-import {useUserSession} from "../.nuxt/imports";
-import type {User} from "../src/types/user";
+import {useUserSession} from "~/.nuxt/imports";
+import type {User} from "~/src/types/user";
 
 let authService: AuthService | null = null
 let userSession:ReturnType<typeof useUserSession> | null = null

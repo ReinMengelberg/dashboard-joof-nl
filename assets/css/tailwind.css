@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "../../node_modules/.deno/tailwindcss@4.1.12/node_modules/tailwindcss/dist/lib.d.mts";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
