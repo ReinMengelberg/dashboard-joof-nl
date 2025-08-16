@@ -7,12 +7,12 @@
     <div class="flex items-center justify-center py-12">
       <slot />
     </div>
-    <div class="hidden bg-muted lg:block">
-      <!-- You can place an illustrative image here if desired -->
+    <div class="hidden bg-muted lg:block relative">
       <img
-        src="/city.jpg"
-        alt="Image"
-        class="max-h-dvh w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          src="/city.jpg"
+          alt=""
+          aria-hidden="true"
+          class="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
       />
     </div>
   </div>

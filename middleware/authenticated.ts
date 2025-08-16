@@ -1,12 +1,11 @@
-import {defineNuxtRouteMiddleware} from "nuxt/app";
-import {useUserSession} from "../.nuxt/imports";
-import {navigateTo} from "nuxt/app";
+import { defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app'
+import { useAuthStore } from '~/stores/AuthStore'
 
 export default defineNuxtRouteMiddleware(() => {
-    const { loggedIn } = useUserSession()
+  const auth = useAuthStore()
 
-    // redirect the user to the app if they're already authenticated'
-    if (!loggedIn.value) {
-        return navigateTo('/auth/login')
-    }
+  // Redirect the user to login if they are not authenticated
+  if (!auth.isAuthenticated) {
+    return navigateTo('/auth/login')
+  }
 })
