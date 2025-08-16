@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Input } from "@/components/ui/input";
 
-definePageMeta({ layout: "auth" });
+definePageMeta({
+  layout: "auth",
+  middleware: "unauthenticated"
+});
 </script>
 
 <template>
@@ -29,7 +32,7 @@ definePageMeta({ layout: "auth" });
           <Label for="password">Password</Label>
           <a
             @click="navigateTo('/auth/reset')"
-            class="ml-auto inline-block text-sm underline"
+            class="ml-auto cursor-pointer inline-block text-sm underline"
           >
             Forgot your password?
           </a>
@@ -38,9 +41,6 @@ definePageMeta({ layout: "auth" });
       </div>
       <Button type="submit" class="w-full">
         Login
-      </Button>
-      <Button variant="outline" class="w-full">
-        Login with Google
       </Button>
     </div>
   </div>

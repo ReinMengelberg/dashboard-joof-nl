@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware(() => {
     const { loggedIn } = useUserSession()
 
     // redirect the user to the app if they're already authenticated'
-    if (!loggedIn.value) {
-        return navigateTo('/auth/login')
+    if (loggedIn.value) {
+        return navigateTo('/app/home')
     }
 })
