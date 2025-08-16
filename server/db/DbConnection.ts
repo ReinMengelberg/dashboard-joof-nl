@@ -1,4 +1,4 @@
-import { PrismaClient } from "../../generated/prisma";
+import { PrismaClient } from "~~/generated/prisma";
 
 // Ensure a single PrismaClient instance across hot-reloads (e.g., in dev with Nuxt/Nodemon)
 // In production, a single instance per process is created.
