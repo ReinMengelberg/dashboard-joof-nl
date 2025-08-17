@@ -10,7 +10,6 @@ useHead(() => ({
 </script>
 
 <template>
-  <h1>BASE LAYOUT</h1>
   <slot></slot>
   <NotificationComponent />
 </template>
