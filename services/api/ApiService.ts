@@ -61,7 +61,6 @@ export default class ApiService {
             console.log(response)
             return response as ApiResponse<T>;
         } catch (error: any) {
-            console.log(error)
             throw {
                 success: false,
                 data: null,
