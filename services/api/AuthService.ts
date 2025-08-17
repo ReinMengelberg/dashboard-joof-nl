@@ -19,7 +19,7 @@ export interface PerformResetRequest {
 }
 
 export default class AuthService extends ApiService {
-    protected override namespace = '/auth';
+    protected override namespace = '/api/auth';
     constructor() {
         super()
     }
