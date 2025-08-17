@@ -15,6 +15,9 @@ export default defineNuxtConfig({
         '/': { redirect: '/app/home' }, // change to your default page
     },
     modules: ['shadcn-nuxt', 'nuxt-auth-utils', '@pinia/nuxt'],
+    pinia: {
+        storesDirs: ['~/stores/**'],
+    },
     shadcn: {
         /**
          * Prefix for all the imported component

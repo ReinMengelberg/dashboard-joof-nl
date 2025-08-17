@@ -7,6 +7,7 @@ const notifications = ref<NotificationEvent[]>([]);
 
 // This handler pushes a new notification into the array
 const handleNotification = (payload: NotificationEvent) => {
+  console.log("Notification received: ", payload.message)
   notifications.value.push(payload);
 
   // Automatically remove the notification after the specified duration
