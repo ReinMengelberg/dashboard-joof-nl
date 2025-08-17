@@ -1,4 +1,4 @@
-// Auth connects to the resource API endpoints.]
+// Auth connects to the resource API endpoints.
 import ApiService from "./ApiService";
 import type { IApiResponse } from "~/src/helpers/ApiResponse";
 import type { User } from "~/src/types/user";
