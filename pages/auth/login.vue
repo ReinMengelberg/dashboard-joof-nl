@@ -16,9 +16,6 @@ const auth = useAuthStore()
 async function onSubmit() {
   if (!email.value || !password.value || auth.loading) return
   await auth.login({ email: email.value, password: password.value })
-  if (auth.isAuthenticated) {
-    await navigateTo('/app/home')
-  }
 }
 </script>
 

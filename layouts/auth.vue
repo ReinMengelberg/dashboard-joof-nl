@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // Auth layout: two-column grid with centered content on the left and an optional media panel on the right.
+import NotificationComponent from "@/components/utils/NotificationComponent.vue";
 </script>
 
 <template>
