@@ -8,27 +8,30 @@ const bodySchema = z.object({
     password: z.string().min(8)
 })
 
-export default defineEventHandler(async (event) => {
-    const { email, password } = await readValidatedBody(event, bodySchema.parse)
+export default eventHandler({
+    onRequest: [unauthenticated],
+    handler: async (event) => {
+        const { email, password } = await readValidatedBody(event, bodySchema.parse)
 
-    // Find user in DB
-    const user = await UserRepository.findByEmail(email)
+        // Find user in DB
+        const user = await UserRepository.findByEmail(email)
 
-    // If no user or password mismatch -> 401
-    if (!user || user.password !== password) {
-        setResponseStatus(event, 401)
-        return ApiResponse.error(401, 'Invalid credentials')
-    }
-
-    // Establish session with Auth utils
-    await setUserSession(event, {
-        user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            admin: user.admin,
+        // If no user or password mismatch -> 401
+        if (!user || user.password !== password) {
+            setResponseStatus(event, 401)
+            return ApiResponse.error(401, 'Invalid credentials')
         }
-    })
 
-    return ApiResponse.success('Logged in successfully')
+        // Establish session with Auth utils
+        await setUserSession(event, {
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                admin: user.admin,
+            },
+        })
+
+        return ApiResponse.success('Logged in successfully')
+    },
 })
