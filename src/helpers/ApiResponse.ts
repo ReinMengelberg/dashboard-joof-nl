@@ -1,3 +1,5 @@
+import { createError } from 'h3'
+
 export interface IApiResponse<T = any> {
     success: boolean;
     data: T | null;
@@ -24,6 +26,38 @@ export class ApiResponse<T = any> implements IApiResponse<T> {
 
     static error<T = null>(code: number, message: string, data: T | null = null): ApiResponse<T> {
         return new ApiResponse(false, data, message, code);
+    }
+
+    /**
+     * Throws an h3 error with the response data
+     * Use this when you want to immediately terminate the request with an error
+     */
+    static throwError(code: number, message: string, data: any = null): never {
+        throw createError({
+            statusCode: code,
+            statusMessage: message,
+            data: {
+                success: false,
+                data,
+                message,
+                code
+            }
+        })
+    }
+
+    /**
+     * Converts this ApiResponse to an h3 error and throws it
+     * Only works if this is an error response
+     */
+    throwIfError(): this {
+        if (!this.success) {
+            throw createError({
+                statusCode: this.code,
+                statusMessage: this.message || 'An error occurred',
+                data: this.toJSON()
+            })
+        }
+        return this;
     }
 
     toJSON(): IApiResponse<T> {

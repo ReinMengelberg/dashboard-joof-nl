@@ -1,6 +1,6 @@
 // Auth connects to the resource API endpoints.]
 import ApiService from "./ApiService";
-import {IApiResponse} from "~/src/helpers/ApiResponse";
+import type { IApiResponse } from "~/src/helpers/ApiResponse";
 import type { User } from "~/src/types/user";
 
 export interface LoginRequest {
@@ -17,7 +17,6 @@ export interface PerformResetRequest {
     password: string
     password_confirmation: string
 }
-
 
 export default class AuthService extends ApiService {
     protected override namespace = '/auth';

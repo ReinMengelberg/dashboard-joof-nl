@@ -1,5 +1,5 @@
 import {defineStore} from 'pinia'
-import AuthService, {LoginRequest} from '../services/api/AuthService'
+import AuthService, {type LoginRequest} from '../services/api/AuthService'
 import {useUserSession} from "~/.nuxt/imports";
 import type {User} from "~/src/types/user";
 import NotificationService from '../services/utils/NotificationService'
@@ -37,6 +37,7 @@ export const useAuthStore = defineStore('auth', {
             this.error = null
             try {
                 const authService = new AuthService()
+                console.log(credentials)
                 const response = await authService.login(credentials)
                 if (response.success) {
                     NotificationService.showSuccess('Logged in successfully.')
@@ -47,6 +48,7 @@ export const useAuthStore = defineStore('auth', {
                     return ErrorService.returnFalse('error', response.message || 'Login failed.')
                 }
             } catch (error: any) {
+                console.log("Failed to login")
                 this.error = error.message
                 return ErrorService.returnFalse(error, error?.message || 'Login failed.')
             } finally {

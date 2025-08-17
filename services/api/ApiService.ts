@@ -1,7 +1,7 @@
-import type { FetchOptions } from 'ofetch';
+import type { FetchOptions, $Fetch } from 'ofetch';
 import { $fetch } from 'ofetch';
 import { useRuntimeConfig } from 'nuxt/app';
-import type { IApiResponse } from '../../src/helpers/ApiResponse';
+import type { IApiResponse } from '@/src/helpers/ApiResponse';
 
 export default class ApiService {
     // Create a typed $fetch client
@@ -34,120 +34,94 @@ export default class ApiService {
         return `${ns}${ep}`;
     }
 
-    public async get<T>(
-        endpoint: string,
-        config: FetchOptions = {}
-    ): Promise<IApiResponse<T>> {
+    public async get<T>(endpoint: string, config: any = {}): Promise<ApiResponse<T>> {
         try {
-            return await this.client<IApiResponse<T>>(this.buildUrl(endpoint), {
+            const response = await this.client(this.buildUrl(endpoint), {
                 method: 'GET',
                 ...config,
             });
+            return response as ApiResponse<T>;
         } catch (error: any) {
-            throw this.normalizeError(error);
-        }
-    }
-
-    public async post<T>(
-        endpoint: string,
-        data?: any,
-        config: FetchOptions = {}
-    ): Promise<IApiResponse<T>> {
-        try {
-            return await this.client<IApiResponse<T>>(this.buildUrl(endpoint), {
-                method: 'POST',
-                body: data,
-                ...this.withJsonHeaderIfNeeded(data, config),
-            });
-        } catch (error: any) {
-            throw this.normalizeError(error);
-        }
-    }
-
-    public async patch<T>(
-        endpoint: string,
-        data?: any,
-        config: FetchOptions = {}
-    ): Promise<IApiResponse<T>> {
-        try {
-            return await this.client<IApiResponse<T>>(this.buildUrl(endpoint), {
-                method: 'PATCH',
-                body: data,
-                ...this.withJsonHeaderIfNeeded(data, config),
-            });
-        } catch (error: any) {
-            throw this.normalizeError(error);
-        }
-    }
-
-    public async put<T>(
-        endpoint: string,
-        data?: any,
-        config: FetchOptions = {}
-    ): Promise<IApiResponse<T>> {
-        try {
-            return await this.client<IApiResponse<T>>(this.buildUrl(endpoint), {
-                method: 'PUT',
-                body: data,
-                ...this.withJsonHeaderIfNeeded(data, config),
-            });
-        } catch (error: any) {
-            throw this.normalizeError(error);
-        }
-    }
-
-    public async delete<T>(
-        endpoint: string,
-        data?: any,
-        config: FetchOptions = {}
-    ): Promise<IApiResponse<T>> {
-        try {
-            return await this.client<IApiResponse<T>>(this.buildUrl(endpoint), {
-                method: 'DELETE',
-                // Some APIs accept a body for DELETE; pass only if provided
-                ...(data !== undefined ? { body: data } : {}),
-                ...this.withJsonHeaderIfNeeded(data, config),
-            });
-        } catch (error: any) {
-            throw this.normalizeError(error);
-        }
-    }
-
-    // Helpers
-
-    protected withJsonHeaderIfNeeded(
-        body: any,
-        config: FetchOptions
-    ): FetchOptions {
-        // If sending plain objects/arrays, default to JSON
-        const isFormData =
-            typeof FormData !== 'undefined' && body instanceof FormData;
-        if (!isFormData) {
-            return {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(config.headers as Record<string, string> | undefined),
-                },
-                ...config,
+            throw {
+                success: false,
+                data: null,
+                message: error?.response?._data?.message || 'An error occurred',
+                code: error?.response?.status || 500,
             };
         }
-        return config;
     }
 
-    protected normalizeError(error: any) {
-        // ofetch throws FetchError with status and data
-        const status = error?.response?.status ?? error?.status ?? 500;
-        const message =
-            error?.response?._data?.message ??
-            error?.data?.message ??
-            error?.message ??
-            'An error occurred';
+    public async post<T>(endpoint: string, data: any, config: any = {}): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.client(this.buildUrl(endpoint), {
+                method: 'POST',
+                body: data,
+                ...config,
+            });
+            console.log(response)
+            return response as ApiResponse<T>;
+        } catch (error: any) {
+            console.log(error)
+            throw {
+                success: false,
+                data: null,
+                message: error?.response?._data?.message || 'An error occurred',
+                code: error?.response?.status || 500,
+            };
+        }
+    }
 
-        return {
-            success: false,
-            data: null,
-            message,
-            code: status,
-        } as IApiResponse<null>;
+    public async patch<T>(endpoint: string, data: any, config: any = {}): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.client(this.buildUrl(endpoint), {
+                method: 'PATCH',
+                body: data,
+                ...config,
+            });
+            return response as ApiResponse<T>;
+        } catch (error: any) {
+            throw {
+                success: false,
+                data: null,
+                message: error?.response?._data?.message || 'An error occurred',
+                code: error?.response?.status || 500,
+            };
+        }
+    }
+
+    public async put<T>(endpoint: string, data: any, config: any = {}): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.client(this.buildUrl(endpoint), {
+                method: 'PUT',
+                body: data,
+                ...config,
+            });
+            return response as ApiResponse<T>;
+        } catch (error: any) {
+            throw {
+                success: false,
+                data: null,
+                message: error?.response?._data?.message || 'An error occurred',
+                code: error?.response?.status || 500,
+            };
+        }
+    }
+
+    public async delete<T>(endpoint: string, data: any, config: any = {}): Promise<ApiResponse<T>> {
+        try {
+            const response = await this.client(this.buildUrl(endpoint), {
+                method: 'DELETE',
+                body: data,
+                ...config,
+            });
+            return response as ApiResponse<T>;
+        } catch (error: any) {
+            throw {
+                success: false,
+                data: null,
+                message: error?.response?._data?.message || 'An error occurred',
+                code: error?.response?.status || 500,
+            };
+        }
     }
 }
