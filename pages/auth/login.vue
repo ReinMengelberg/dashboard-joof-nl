@@ -6,7 +6,7 @@ import { useAuthStore } from "~/stores/AuthStore";
 
 definePageMeta({
   layout: "auth",
-  // middleware: "unauthenticated"
+  middleware: "unauthenticated"
 });
 
 const email = ref("")
