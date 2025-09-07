@@ -29,7 +29,7 @@ export const useAuthStore = defineStore('auth', {
     getters: {
         isAuthenticated: (state) => !!state.user,
         currentUser: (state) => state.user,
-        isAdmin: (state) => state.user.admin
+        isAdmin: (state) => !!state.user?.admin, // <- make null-safe
     },
 
     actions: {

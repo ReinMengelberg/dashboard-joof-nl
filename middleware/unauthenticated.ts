@@ -13,8 +13,8 @@ export default defineNuxtRouteMiddleware(async () => {
         }
     }
 
-    // Redirect the user to the app if they're already authenticated
-    if (auth.isAuthenticated) {
+    // Only redirect on the client to avoid SSR → CSR bounce
+    if (process.client && auth.isAuthenticated) {
         return navigateTo('/app/home', { replace: true })
     }
 })

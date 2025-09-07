@@ -13,7 +13,8 @@ export default defineNuxtRouteMiddleware(async () => {
         }
     }
 
-    if (!auth.isAuthenticated) {
+    // Only redirect on the client to avoid SSR → CSR bounce
+    if (process.client && !auth.isAuthenticated) {
         return navigateTo('/auth/login', { replace: true })
     }
 })
