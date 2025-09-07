@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { ApiResponse } from "~~/src/helpers/ApiResponse";
 import { UserRepository } from "~~/server/db/UserRepository";
+import unauthenticated from "~/server/middleware/unauthenticated";
 import { setResponseStatus } from 'h3'
 
 const bodySchema = z.object({

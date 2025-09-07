@@ -1,4 +1,5 @@
 import { ApiResponse } from "~~/src/helpers/ApiResponse";
+import authenticated from "~/server/middleware/authenticated"
 
 export default eventHandler({
   onRequest: [authenticated],
