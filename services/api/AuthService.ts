@@ -31,7 +31,7 @@ export default class AuthService extends ApiService {
 
     // Get the authenticated user
     public user(): Promise<IApiResponse<User|null>> {
-        return this.get('/get')
+        return this.get('/user')
     }
 
     // Log out the user

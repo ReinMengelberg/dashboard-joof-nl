@@ -3,21 +3,28 @@ import { ApiResponse } from "~~/server/utils/ApiResponse";
 import { UserRepository } from "~~/server/db/UserRepository";
 import unauthenticated from "@/server/utils/middleware/unauthenticated";
 import { setResponseStatus } from 'h3'
+import { compare } from 'bcryptjs'
 
 const bodySchema = z.object({
     email: z.email(),
-    password: z.string().min(8)
+    password: z.string().min(8),
 })
 
 export default eventHandler({
     onRequest: [unauthenticated],
     handler: async (event) => {
         const { email, password } = await readValidatedBody(event, bodySchema.parse)
+
         // Find user in DB
         const user = await UserRepository.findByEmail(email)
 
         // If no user or password mismatch -> 401
-        if (!user || user.password !== password) {
+        if (!user) {
+            return ApiResponse.error(401, 'Invalid credentials')
+        }
+
+        const passwordMatches = await compare(password, user.password)
+        if (!passwordMatches) {
             return ApiResponse.error(401, 'Invalid credentials')
         }
 
@@ -34,3 +41,4 @@ export default eventHandler({
         return ApiResponse.success('Logged in successfully')
     },
 })
+
