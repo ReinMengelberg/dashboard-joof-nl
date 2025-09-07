@@ -95,9 +95,7 @@ export const useUserStore = defineStore('UserStore', {
                 const {data} = await userService.update(userId, request)
                 if (!data) new Error('Failed to update user')
                 this.active = data
-                console.log("Data from update: ", data)
                 if (Number(auth.user?.id) === Number(userId)) {
-                    console.log("refreshing auth")
                     await auth.fetchUser()
                 }
                 NotificationService.showSuccess('User updated')
