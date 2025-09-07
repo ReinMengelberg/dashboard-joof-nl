@@ -1,5 +1,5 @@
 import { ApiResponse } from "~~/src/helpers/ApiResponse";
-import { getUserSession } from "#auth-utils";
+import { useUserSession } from "~/.nuxt/imports";
 
 export default eventHandler({
   onRequest: [authenticated],
