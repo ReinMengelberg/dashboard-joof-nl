@@ -2,12 +2,7 @@
 import ApiService from "./ApiService";
 import type {IApiResponse} from "@/server/utils/ApiResponse";
 import type {User} from "@/src/types/models/user";
-
-export interface ListUsersParams {
-    skip?: number;
-    take?: number;
-    q?: string;
-}
+import type {PaginatedData} from "@/src/types/api/PaginatedData";
 
 export interface UserFilters {
     admin?: boolean;
@@ -37,17 +32,26 @@ export default class UserService extends ApiService {
     }
 
     // List users with optional pagination and query
-    public list(params: ListUsersParams = {}): Promise<IApiResponse<User[]>> {
-        const query = new URLSearchParams();
-        if (typeof params.skip === "number") query.set("skip", String(params.skip));
-        if (typeof params.take === "number") query.set("take", String(params.take));
-        if (params.q) query.set("q", params.q);
-        const qs = query.toString();
-        const url = "/list" + (qs ? `?${qs}` : "");
-        return this.get(url);
+    public list(
+        search: string,
+        filters: UserFilters,
+        page: number,
+        per_page: number
+    ): Promise<IApiResponse<PaginatedData<User[]>>> {
+        const params = new URLSearchParams();
+        if (search) params.append("search", search);
+        if (page) params.append("page", page.toString());
+        if (per_page) params.append("per_page", per_page.toString());
+        if (filters && typeof filters === "object") {
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value !== undefined) {
+                    params.append(key, String(value));
+                }
+            });
+        }
+        const queryString = params.toString();
+        return this.get(`/list${queryString ? `?${queryString}` : ''}`);
     }
-
-    public mine
 
     // Create a new user
     public create(request: CreateUserRequest): Promise<IApiResponse<User>> {
