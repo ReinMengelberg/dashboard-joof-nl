@@ -58,91 +58,69 @@ export const useUserStore = defineStore('UserStore', {
             }
         },
 
-        setQuery(q: string) {
-            this.query = q
-        },
-        setPagination(skip: number, take: number) {
-            this.skip = skip
-            this.take = take
-        },
-
         // CREATE
-        async create(request: CreateUserRequest): Promise<User | null> {
+        async create(request: CreateUserRequest): Promise<boolean> {
             const userService = ensureService()
             try {
                 const {data} = await userService.create(request)
-                if (data) {
-                    // Optimistically update list
-                    this.items.unshift(data)
-                    NotificationService.showSuccess('User created')
-                }
-                return data as User | null
+                if (!data) new Error('Failed to create user')
+                NotificationService.showSuccess('User created')
+                return true
             } catch (error: any) {
-                return ErrorService.returnNull(error, 'Failed to create user')
+                return ErrorService.returnFalse(error, 'Failed to create user')
             }
         },
 
         // READ
-        async view(id: number): Promise<boolean> {
+        async view(userId: number): Promise<boolean> {
             const userService = ensureService()
             this.activeLoading = true
             try {
-                const {data} = await userService.view(id)
+                const {data} = await userService.view(userId)
+                if (!data) new Error('Failed to view user')
                 this.active = data
                 return true
             } catch (error: any) {
-                return ErrorService.returnFalse(error, 'Failed to load user')
+                return ErrorService.returnFalse(error, 'Failed to view user')
             } finally {
                 this.activeLoading = false
             }
         },
 
         // UPDATE
-        async update(id: number, request: UpdateUserRequest): Promise<boolean> {
+        async update(userId: number, request: UpdateUserRequest): Promise<boolean> {
             const userService = ensureService()
             const auth = useAuthStore()
             try {
-                const {data} = await userService.update(id, request)
-                console.log(data)
-                if (data) {
-
-                    // Update active if open
-                    if (this.active?.id === id) this.active = data
-
-                    // If the updated user is the current authenticated user, refresh auth store
-                    if (auth.currentUser?.id === id) {
-                        await auth.fetchUser()
-                    }
-
-                    NotificationService.showSuccess('User updated')
-                    return true
+                const {data} = await userService.update(userId, request)
+                if (!data) new Error('Failed to update user')
+                this.active = data
+                console.log("Data from update: ", data)
+                if (Number(auth.user?.id) === Number(userId)) {
+                    console.log("refreshing auth")
+                    await auth.fetchUser()
                 }
-                return false
+                NotificationService.showSuccess('User updated')
+                return true
             } catch (error: any) {
                 return ErrorService.returnFalse(error, 'Failed to update user')
             }
         },
 
         // DELETE
-        async destroy(id: number, password?: string): Promise<boolean> {
+        async destroy(userId: number, password?: string): Promise<boolean> {
             const userService = ensureService()
             const auth = useAuthStore()
             try {
                 const {success} = await userService.destroy(id, password ? { password } : undefined)
-                if (success) {
-                    // Remove from list
-                    this.items = this.items.filter(u => u.id !== id)
-                    // Clear active if it was the deleted one
-                    if (this.active?.id === id) this.active = null
-
-                    // If the deleted user is the current authenticated user, refresh auth (it may become null)
-                    if (auth.currentUser?.id === id) {
-                        await auth.fetchUser()
-                    }
-                    NotificationService.showSuccess('User deleted')
-                    return true
+                if (!success) new Error('Failed to delete user')
+                this.active = null
+                if (Number(auth.user?.id) === Number(userId)) {
+                    console.log("refreshing auth")
+                    await auth.fetchUser()
                 }
-                return false
+                NotificationService.showSuccess('User deleted')
+                return true
             } catch (error: any) {
                 return ErrorService.returnFalse(error, 'Failed to delete user')
             }

@@ -59,15 +59,12 @@ export const useAuthStore = defineStore('auth', {
         async fetchUser(): Promise<boolean> {
             this.loading = true
             try {
+                console.log("fetching user")
                 const authService = new AuthService()
-                const response = await authService.user()
-                if (response.success) {
-                    this.user = response.data
-                    return true
-                } else {
-                    this.error = response.message
-                    return ErrorService.returnFalse('error', response.message || 'Failed to fetch user.')
-                }
+                const { data } = await authService.user()
+                console.log("Data from fetch user: ", data)
+                this.user = data
+                return true
             } catch (error: any) {
                 this.error = error.message
                 return ErrorService.returnFalse(error, error?.message || 'Failed to fetch user.')

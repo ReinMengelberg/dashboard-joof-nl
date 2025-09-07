@@ -6,6 +6,7 @@ import {useUserStore} from '~/stores/UserStore'
 import {Card, CardHeader, CardTitle, CardContent, CardFooter} from '@/components/ui/card'
 import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter} from '@/components/ui/dialog'
 import NotificationService from '~/services/utils/NotificationService'
 import ErrorService from '~/services/utils/ErrorService'
 import DeleteInterface from "@/components/utils/DeleteInterface.vue";
@@ -246,85 +247,78 @@ async function submitPasswordChange() {
       </CardFooter>
     </Card>
 
-    <!-- Name Dialog -->
-    <div v-if="showNameDialog" class="fixed inset-0 z-50 grid place-items-center">
-      <div class="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
-      <div class="relative z-10 w-full max-w-md rounded-xl border bg-card text-card-foreground shadow-lg">
-        <div class="px-6 py-4 border-b">
-          <h3 class="font-semibold">Update name</h3>
+    <!-- Name Dialog (shadcn) -->
+    <Dialog :open="showNameDialog" @update:open="toggleNameDialog">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update name</DialogTitle>
+          <DialogDescription>Enter your new display name.</DialogDescription>
+        </DialogHeader>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">New name</label>
+          <Input v-model="nameForm.value" type="text" placeholder="Jane Doe" />
         </div>
-        <div class="p-6 grid gap-4">
-          <p class="text-sm text-muted-foreground">Enter your new display name.</p>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">New name</label>
-            <Input v-model="nameForm.value" type="text" placeholder="Jane Doe"/>
-          </div>
-        </div>
-        <div class="px-6 py-4 border-t flex justify-end gap-3">
+        <DialogFooter>
           <Button variant="outline" @click="toggleNameDialog(false)">Cancel</Button>
           <Button :disabled="nameUpdating || !nameForm.value" @click="submitNameChange">
-            <i class="ri-user-follow-line" aria-hidden="true"/>
+            <i class="ri-user-follow-line" aria-hidden="true" />
             {{ nameUpdating ? 'Saving…' : 'Update name' }}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
-    <!-- Email Dialog -->
-    <div v-if="showEmailDialog" class="fixed inset-0 z-50 grid place-items-center">
-      <div class="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
-      <div class="relative z-10 w-full max-w-md rounded-xl border bg-card text-card-foreground shadow-lg">
-        <div class="px-6 py-4 border-b">
-          <h3 class="font-semibold">Update email</h3>
+    <!-- Email Dialog (shadcn) -->
+    <Dialog :open="showEmailDialog" @update:open="toggleEmailDialog">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Update email</DialogTitle>
+          <DialogDescription>Enter your new email address. You may need to re-verify it.</DialogDescription>
+        </DialogHeader>
+        <div class="grid gap-2">
+          <label class="text-sm font-medium">New email</label>
+          <Input v-model="emailForm.value" type="email" placeholder="you@example.com" />
         </div>
-        <div class="p-6 grid gap-4">
-          <p class="text-sm text-muted-foreground">Enter your new email address. You may need to re-verify it.</p>
-          <div class="grid gap-2">
-            <label class="text-sm font-medium">New email</label>
-            <Input v-model="emailForm.value" type="email" placeholder="you@example.com"/>
-          </div>
-        </div>
-        <div class="px-6 py-4 border-t flex justify-end gap-3">
+        <DialogFooter>
           <Button variant="outline" @click="toggleEmailDialog(false)">Cancel</Button>
           <Button :disabled="emailUpdating || !emailForm.value" @click="submitEmailChange">
-            <i class="ri-mail-send-line" aria-hidden="true"/>
+            <i class="ri-mail-send-line" aria-hidden="true" />
             {{ emailUpdating ? 'Saving…' : 'Update email' }}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
 
-    <!-- Password Dialog -->
-    <div v-if="showPasswordDialog" class="fixed inset-0 z-50 grid place-items-center">
-      <div class="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
-      <div class="relative z-10 w-full max-w-md rounded-xl border bg-card text-card-foreground shadow-lg">
-        <div class="px-6 py-4 border-b">
-          <h3 class="font-semibold">Change password</h3>
-        </div>
-        <div class="p-6 grid gap-4">
+    <!-- Password Dialog (shadcn) -->
+    <Dialog :open="showPasswordDialog" @update:open="togglePasswordDialog">
+      <DialogContent class="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Change password</DialogTitle>
+          <DialogDescription>Update your account password.</DialogDescription>
+        </DialogHeader>
+        <div class="grid gap-4">
           <div class="grid gap-2">
             <label class="text-sm font-medium">Current password</label>
-            <Input v-model="passwordForm.old" type="password" placeholder="Current password"/>
+            <Input v-model="passwordForm.old" type="password" placeholder="Current password" />
           </div>
           <div class="grid gap-2">
             <label class="text-sm font-medium">New password</label>
-            <Input v-model="passwordForm.new" type="password" placeholder="New password"/>
+            <Input v-model="passwordForm.new" type="password" placeholder="New password" />
           </div>
           <div class="grid gap-2">
             <label class="text-sm font-medium">Confirm new password</label>
-            <Input v-model="passwordForm.confirm" type="password" placeholder="Confirm new password"/>
+            <Input v-model="passwordForm.confirm" type="password" placeholder="Confirm new password" />
           </div>
         </div>
-        <div class="px-6 py-4 border-t flex justify-end gap-3">
+        <DialogFooter>
           <Button variant="outline" @click="togglePasswordDialog(false)">Cancel</Button>
-          <Button :disabled="passwordUpdating || !passwordForm.old || !passwordForm.new || !passwordForm.confirm"
-                  @click="submitPasswordChange">
-            <i class="ri-lock-password-line" aria-hidden="true"/>
+          <Button :disabled="passwordUpdating || !passwordForm.old || !passwordForm.new || !passwordForm.confirm" @click="submitPasswordChange">
+            <i class="ri-lock-password-line" aria-hidden="true" />
             {{ passwordUpdating ? 'Saving…' : 'Update password' }}
           </Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
