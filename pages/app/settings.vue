@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useRouter } from '#imports'
-import { useAuthStore } from '~/stores/AuthStore'
-import { useUserStore } from '~/stores/UserStore'
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import {ref, computed, watch, reactive} from 'vue'
+import {useRouter} from '#imports'
+import {useAuthStore} from '~/stores/AuthStore'
+import {useUserStore} from '~/stores/UserStore'
+import {Card, CardHeader, CardTitle, CardContent, CardFooter} from '@/components/ui/card'
+import {Button} from '@/components/ui/button'
+import {Input} from '@/components/ui/input'
 import NotificationService from '~/services/utils/NotificationService'
 import ErrorService from '~/services/utils/ErrorService'
 
@@ -16,19 +16,18 @@ definePageMeta({
 
 const auth = useAuthStore()
 const userStore = useUserStore()
-const router = useRouter()
 
 // Ensure the active user in UserStore is set to the authenticated user
 watch(
-  () => auth.currentUser?.id,
-  (id) => {
-    if (id) {
-      userStore.view(id)
-    } else {
-      userStore.active = null
-    }
-  },
-  { immediate: true }
+    () => auth.currentUser?.id,
+    (id) => {
+      if (id) {
+        userStore.view(id)
+      } else {
+        userStore.active = null
+      }
+    },
+    {immediate: true}
 )
 
 // Local UI state for dialogs
@@ -36,126 +35,115 @@ const showNameDialog = ref(false)
 const showEmailDialog = ref(false)
 const showPasswordDialog = ref(false)
 
-// Forms
-const newName = ref('')
+// Separate form states and updating flags per form
 const nameUpdating = ref(false)
-const newEmail = ref('')
-const emailUpdating = ref(false)
-const oldPassword = ref('')
-const newPassword = ref('')
-const confirmPassword = ref('')
-const passwordUpdating = ref(false)
+const nameForm = reactive({
+  value: '',
+})
 
-const currentEmail = computed(() => userStore.active?.email || '')
-const currentName = computed(() => userStore.active?.name || '')
-
-function goBack() {
-  if (process.client && window.history.length > 1) router.back()
-  else router.push('/app/home')
-}
-
-function openNameDialog() {
-  newName.value = currentName.value
-  showNameDialog.value = true
-}
-function closeNameDialog() {
-  showNameDialog.value = false
-}
-async function submitNameChange() {
-  try {
-    nameUpdating.value = true
-    const id = auth.currentUser?.id
-    if (!id) {
-      return ErrorService.returnFalse('error', 'No active user')
-    }
-    if (!newName.value || newName.value === currentName.value) {
-      return ErrorService.returnFalse('warning', 'Please enter a different name')
-    }
-    const ok = await userStore.update(id, { name: newName.value })
-    if (ok) {
-      await auth.fetchUser()
-      NotificationService.showSuccess('Updated name')
-      showNameDialog.value = false
-      return true
-    }
-    return false
-  } catch (e: any) {
-    return ErrorService.returnFalse(e, e?.message || 'Failed to update name')
-  } finally {
-    nameUpdating.value = false
+function toggleNameDialog(force?: boolean) {
+  const next = typeof force === 'boolean' ? force : !showNameDialog.value
+  if (next && !showNameDialog.value) {
+    // opening: initialize form
+    nameForm.value = userStore.active?.name
   }
+  showNameDialog.value = next
 }
 
-function openEmailDialog() {
-  newEmail.value = currentEmail.value
-  showEmailDialog.value = true
+async function submitNameChange() {
+  nameUpdating.value = true
+  const id = auth.currentUser?.id
+  if (!id) {
+    return ErrorService.returnFalse('error', 'No active user')
+  }
+  if (!nameForm.value || nameForm.value === userStore.active?.name) {
+    return ErrorService.returnFalse('warning', 'Please enter a different name')
+  }
+  const ok = await userStore.update(id, {name: nameForm.value})
+  if (ok) {
+    await auth.fetchUser()
+    toggleNameDialog(false)
+    nameUpdating.value = false
+    return true
+  }
+  nameUpdating.value = false
+  return false
 }
-function closeEmailDialog() {
-  showEmailDialog.value = false
+
+const emailUpdating = ref(false)
+const emailForm = reactive({
+  value: '',
+})
+
+function toggleEmailDialog(force?: boolean) {
+  const next = typeof force === 'boolean' ? force : !showEmailDialog.value
+  if (next && !showEmailDialog.value) {
+    // opening: initialize form
+    emailForm.value = userStore.active?.email
+  }
+  showEmailDialog.value = next
 }
 
 async function submitEmailChange() {
-  try {
-    emailUpdating.value = true
-    const id = auth.currentUser?.id
-    if (!id) {
-      return ErrorService.returnFalse('error', 'No active user')
-    }
-    if (!newEmail.value || newEmail.value === currentEmail.value) {
-      return ErrorService.returnFalse('warning', 'Please enter a different email')
-    }
-    const ok = await userStore.update(id, { email: newEmail.value })
-    if (ok) {
-      showEmailDialog.value = false
-      return true
-    }
-    return false
-  } catch (e: any) {
-    return ErrorService.returnFalse(e, e?.message || 'Failed to update email')
-  } finally {
-    emailUpdating.value = false
+  emailUpdating.value = true
+  const id = auth.currentUser?.id
+  if (!id) {
+    return ErrorService.returnFalse('error', 'No active user')
   }
+  if (!emailForm.value || emailForm.value === userStore.active?.email) {
+    return ErrorService.returnFalse('warning', 'Please enter a different email')
+  }
+  const ok = await userStore.update(id, {email: emailForm.value})
+  if (ok) {
+    await auth.fetchUser()
+    toggleEmailDialog(false)
+    emailUpdating.value = false
+    return true
+  }
+  emailUpdating.value = false
+  return false
 }
 
-function openPasswordDialog() {
-  oldPassword.value = ''
-  newPassword.value = ''
-  confirmPassword.value = ''
-  showPasswordDialog.value = true
-}
-function closePasswordDialog() {
-  showPasswordDialog.value = false
+const passwordUpdating = ref(false)
+const passwordForm = reactive({
+  old: '',
+  new: '',
+  confirm: '',
+})
+
+function togglePasswordDialog(force?: boolean) {
+  const next = typeof force === 'boolean' ? force : !showPasswordDialog.value
+  if (next && !showPasswordDialog.value) {
+    // opening: initialize form
+    passwordForm.old = ''
+    passwordForm.new = ''
+    passwordForm.confirm = ''
+  }
+  showPasswordDialog.value = next
 }
 
 async function submitPasswordChange() {
-  try {
-    passwordUpdating.value = true
-    const id = auth.currentUser?.id
-    if (!id) {
-      return ErrorService.returnFalse('error', 'No active user')
-    }
-    if (!oldPassword.value || !newPassword.value || !confirmPassword.value) {
-      return ErrorService.returnFalse('warning', 'Please fill in all password fields')
-    }
-    if (newPassword.value !== confirmPassword.value) {
-      return ErrorService.returnFalse('warning', 'New password and confirmation do not match')
-    }
-    const ok = await userStore.update(id, {
-      old_password: oldPassword.value,
-      new_password: newPassword.value,
-      confirm_password: confirmPassword.value,
-    })
-    if (ok) {
-      NotificationService.showSuccess('Password updated')
-      showPasswordDialog.value = false
-      return true
-    }
-    return false
-  } catch (e: any) {
-    return ErrorService.returnFalse(e, e?.message || 'Failed to update password')
-  } finally {
-    passwordUpdating.value = false
+  passwordUpdating.value = true
+  const id = auth.currentUser?.id
+  if (!id) {
+    return ErrorService.returnFalse('error', 'No active user')
   }
+  if (!passwordForm.old || !passwordForm.new || !passwordForm.confirm) {
+    return ErrorService.returnFalse('warning', 'Please fill in all password fields')
+  }
+  const ok = await userStore.update(id, {
+    old_password: passwordForm.old,
+    new_password: passwordForm.new,
+    confirm_password: passwordForm.confirm,
+  })
+  if (ok) {
+    NotificationService.showSuccess('Password updated')
+    togglePasswordDialog(false)
+    passwordUpdating.value = false
+    return true
+  }
+  passwordUpdating.value = false
+  return false
 }
 </script>
 
@@ -164,8 +152,8 @@ async function submitPasswordChange() {
     <Card class="w-full max-w-3xl mx-auto">
       <CardHeader>
         <div class="flex items-center gap-2">
-          <Button variant="ghost" size="icon" class="-ml-2" @click="goBack" aria-label="Go back">
-            <i class="ri-arrow-left-line" aria-hidden="true" />
+          <Button variant="ghost" size="icon" class="-ml-2" @click="navigateTo('/app/home')" aria-label="Go back">
+            <i class="ri-arrow-left-line" aria-hidden="true"/>
           </Button>
           <CardTitle>User settings</CardTitle>
         </div>
@@ -177,14 +165,14 @@ async function submitPasswordChange() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div class="grid gap-2 sm:col-span-2">
               <label class="text-sm font-medium text-foreground">Name</label>
-              <Input 
-                  :model-value="userStore.active?.name || ''" 
-                  disabled 
+              <Input
+                  :model-value="userStore.active?.name || ''"
+                  disabled
               />
             </div>
             <div class="flex sm:justify-end sm:col-span-1">
-              <Button class="w-full" size="sm" @click="openNameDialog">
-                <i class="ri-user-line" aria-hidden="true" />
+              <Button class="w-full" size="sm" @click="toggleNameDialog(true)">
+                <i class="ri-user-line" aria-hidden="true"/>
                 Change name
               </Button>
             </div>
@@ -194,11 +182,11 @@ async function submitPasswordChange() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div class="grid gap-2 sm:col-span-2">
               <label class="text-sm font-medium text-foreground">Email</label>
-              <Input :model-value="userStore.active?.email || ''" disabled />
+              <Input :model-value="userStore.active?.email || ''" disabled/>
             </div>
             <div class="flex sm:justify-end sm:col-span-1">
-              <Button class="w-full" size="sm" @click="openEmailDialog">
-                <i class="ri-mail-settings-line" aria-hidden="true" />
+              <Button class="w-full" size="sm" @click="toggleEmailDialog(true)">
+                <i class="ri-mail-settings-line" aria-hidden="true"/>
                 Change email
               </Button>
             </div>
@@ -208,11 +196,11 @@ async function submitPasswordChange() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div class="grid gap-2 sm:col-span-2">
               <label class="text-sm font-medium text-foreground">Password</label>
-              <Input :model-value="'aaaaaaaaaaaa'" type="password" disabled />
+              <Input :model-value="'aaaaaaaaaaaa'" type="password" disabled/>
             </div>
             <div class="flex sm:justify-end sm:col-span-1">
-              <Button class="w-full" size="sm" @click="openPasswordDialog">
-                <i class="ri-lock-password-line" aria-hidden="true" />
+              <Button class="w-full" size="sm" @click="togglePasswordDialog(true)">
+                <i class="ri-lock-password-line" aria-hidden="true"/>
                 Change password
               </Button>
             </div>
@@ -236,13 +224,13 @@ async function submitPasswordChange() {
           <p class="text-sm text-muted-foreground">Enter your new display name.</p>
           <div class="grid gap-2">
             <label class="text-sm font-medium">New name</label>
-            <Input v-model="newName" type="text" placeholder="Jane Doe" />
+            <Input v-model="nameForm.value" type="text" placeholder="Jane Doe"/>
           </div>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
-          <Button variant="outline" @click="closeNameDialog">Cancel</Button>
-          <Button :disabled="nameUpdating || !newName" @click="submitNameChange">
-            <i class="ri-user-follow-line" aria-hidden="true" />
+          <Button variant="outline" @click="toggleNameDialog(false)">Cancel</Button>
+          <Button :disabled="nameUpdating || !nameForm.value" @click="submitNameChange">
+            <i class="ri-user-follow-line" aria-hidden="true"/>
             {{ nameUpdating ? 'Saving…' : 'Update name' }}
           </Button>
         </div>
@@ -260,13 +248,13 @@ async function submitPasswordChange() {
           <p class="text-sm text-muted-foreground">Enter your new email address. You may need to re-verify it.</p>
           <div class="grid gap-2">
             <label class="text-sm font-medium">New email</label>
-            <Input v-model="newEmail" type="email" placeholder="you@example.com" />
+            <Input v-model="emailForm.value" type="email" placeholder="you@example.com"/>
           </div>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
-          <Button variant="outline" @click="closeEmailDialog">Cancel</Button>
-          <Button :disabled="emailUpdating || !newEmail" @click="submitEmailChange">
-            <i class="ri-mail-send-line" aria-hidden="true" />
+          <Button variant="outline" @click="toggleEmailDialog(false)">Cancel</Button>
+          <Button :disabled="emailUpdating || !emailForm.value" @click="submitEmailChange">
+            <i class="ri-mail-send-line" aria-hidden="true"/>
             {{ emailUpdating ? 'Saving…' : 'Update email' }}
           </Button>
         </div>
@@ -283,21 +271,22 @@ async function submitPasswordChange() {
         <div class="p-6 grid gap-4">
           <div class="grid gap-2">
             <label class="text-sm font-medium">Current password</label>
-            <Input v-model="oldPassword" type="password" placeholder="Current password" />
+            <Input v-model="passwordForm.old" type="password" placeholder="Current password"/>
           </div>
           <div class="grid gap-2">
             <label class="text-sm font-medium">New password</label>
-            <Input v-model="newPassword" type="password" placeholder="New password" />
+            <Input v-model="passwordForm.new" type="password" placeholder="New password"/>
           </div>
           <div class="grid gap-2">
             <label class="text-sm font-medium">Confirm new password</label>
-            <Input v-model="confirmPassword" type="password" placeholder="Confirm new password" />
+            <Input v-model="passwordForm.confirm" type="password" placeholder="Confirm new password"/>
           </div>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
-          <Button variant="outline" @click="closePasswordDialog">Cancel</Button>
-          <Button :disabled="passwordUpdating || !oldPassword || !newPassword || !confirmPassword" @click="submitPasswordChange">
-            <i class="ri-lock-password-line" aria-hidden="true" />
+          <Button variant="outline" @click="togglePasswordDialog(false)">Cancel</Button>
+          <Button :disabled="passwordUpdating || !passwordForm.old || !passwordForm.new || !passwordForm.confirm"
+                  @click="submitPasswordChange">
+            <i class="ri-lock-password-line" aria-hidden="true"/>
             {{ passwordUpdating ? 'Saving…' : 'Update password' }}
           </Button>
         </div>
