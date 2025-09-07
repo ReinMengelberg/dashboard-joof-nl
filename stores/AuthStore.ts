@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import AuthService, {type LoginRequest} from '../services/api/AuthService'
 import {useUserSession} from "~/.nuxt/imports";
-import type {User} from "~/src/types/user";
+import type {User} from "@/src/types/models/user";
 import NotificationService from '../services/utils/NotificationService'
 import ErrorService from '../services/utils/ErrorService'
 

@@ -22,8 +22,12 @@ export class ApiResponse<T = any> implements IApiResponse<T> {
         return new ApiResponse(true, data, message, code);
     }
 
-    static error<T = null>(code: number, message: string, data: T | null = null): ApiResponse<T> {
-        return new ApiResponse(false, data, message, code);
+    static error<T = null>(code: number, message: string, data: T | null = null): void {
+        throw createError({
+            statusCode: code,
+            statusMessage: message,
+            data: { success: false, data, message, code },
+        })
     }
 
     toJSON(): IApiResponse<T> {

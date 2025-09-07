@@ -1,7 +1,7 @@
 import type { FetchOptions, $Fetch } from 'ofetch';
 import { $fetch } from 'ofetch';
 import { useRuntimeConfig } from 'nuxt/app';
-import type { IApiResponse } from '@/src/helpers/ApiResponse';
+import type { IApiResponse } from '@/server/utils/ApiResponse';
 
 export default class ApiService {
     // Create a typed $fetch client

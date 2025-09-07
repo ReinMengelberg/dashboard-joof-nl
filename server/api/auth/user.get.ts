@@ -1,4 +1,4 @@
-import { ApiResponse } from "~~/src/helpers/ApiResponse";
+import { ApiResponse } from "~~/server/utils/ApiResponse";
 import { useUserSession } from "~/.nuxt/imports";
 import authenticated from "@/server/utils/middleware/authenticated"
 
