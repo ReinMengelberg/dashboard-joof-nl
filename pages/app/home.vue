@@ -29,19 +29,22 @@ const auth = useAuthStore()
         </div>
       </CardContent>
 
-      <CardFooter class="gap-3 border-t">
-        <Button class="flex-1" variant="outline" :disabled="auth.loading" @click=" auth.logout()">
+      <CardFooter class="gap-3 items-center border-t">
+        <Button variant="outline" :disabled="auth.loading" @click=" auth.logout()">
           <i class="ri-logout-circle-r-line" aria-hidden="true" />
           {{ auth.loading ? 'Logging out…' : 'Logout' }}
         </Button>
-        <Button class="flex-1" @click="navigateTo('/app/settings')">
-          <i class="ri-user-settings-line" aria-hidden="true" />
-          Settings
-        </Button>
-        <Button class="flex-1" @click="navigateTo('/app/admin')">
-          <i class="ri-settings-2-fill" aria-hidden="true" />
-          Admin
-        </Button>
+
+        <div v-if="auth.isAdmin" class="ml-auto flex gap-3">
+          <Button @click="navigateTo('/app/settings')">
+            <i class="ri-user-settings-line" aria-hidden="true" />
+            Settings
+          </Button>
+          <Button v-if="auth.isAdmin" @click="navigateTo('/app/admin')">
+            <i class="ri-settings-2-fill" aria-hidden="true" />
+            Admin
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   </div>
