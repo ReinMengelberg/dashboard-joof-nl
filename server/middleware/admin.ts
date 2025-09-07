@@ -3,6 +3,8 @@ import {useUserSession} from "~/.nuxt/imports";
 import {ApiResponse} from '~/src/helpers/ApiResponse'
 
 export default defineEventHandler(async (event) => {
+    const path = getRequestURL(event).pathname
+    const method = getMethod(event)
     if (!path.startsWith('/api') || method === 'OPTIONS') {
         return
     }
