@@ -9,6 +9,10 @@ export interface ListUsersParams {
     q?: string;
 }
 
+export interface UserFilters {
+    admin?: boolean;
+}
+
 export interface CreateUserRequest {
     name: string;
     email: string;
@@ -42,6 +46,8 @@ export default class UserService extends ApiService {
         const url = "/list" + (qs ? `?${qs}` : "");
         return this.get(url);
     }
+
+    public mine
 
     // Create a new user
     public create(request: CreateUserRequest): Promise<IApiResponse<User>> {

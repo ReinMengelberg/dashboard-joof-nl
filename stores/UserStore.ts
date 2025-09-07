@@ -26,6 +26,13 @@ export const useUserStore = defineStore('UserStore', {
         skip: 0 as number,
         take: 25 as number,
 
+        list: null as PaginatedData<User[]>,
+        search: null as string,
+        filters: null as UserFilters,
+        page: null as number,
+        perPage: null as number,
+        listLoading: false,
+
         // Active item state
         active: null as User | null,
         activeLoading: false,

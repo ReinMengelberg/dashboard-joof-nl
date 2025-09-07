@@ -24,10 +24,10 @@ const paginationData = computed(() => {
 // Extract pagination details
 const currentPage = computed(() => paginationData.value?.current_page || 1);
 const lastPage = computed(() => paginationData.value?.last_page || 1);
-const hasPreviousPage = computed(() => !!paginationData.value?.prev_page_url);
-const hasNextPage = computed(() => !!paginationData.value?.next_page_url);
-const from = computed(() => paginationData.value?.from || 0);
-const to = computed(() => paginationData.value?.to || 0);
+const hasPreviousPage = computed(() => currentPage.value > 1);
+const hasNextPage = computed(() => currentPage.value < lastPage.value);
+const from = computed(() => paginationData.value?.from ?? 0);
+const to = computed(() => paginationData.value?.to ?? 0);
 const total = computed(() => paginationData.value?.total || 0);
 
 /**
