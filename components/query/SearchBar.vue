@@ -17,7 +17,6 @@ export interface FilterConfig {
   with_exclude?: boolean; // Whether to show exclude options in the filter.
 
   icon?: boolean; // Whether we should include the icon
-  avatar?: boolean; // Whether we should include the avatar
   color?: boolean; // Whether we should include the color
   count?: boolean; // Whether we should include the count
 
@@ -424,7 +423,6 @@ function hasOptions(type: string): boolean {
             :disabled="!hasOptions(filterType.key)"
 
             :icon="filterType.icon"
-            :avatar="filterType.avatar"
             :color="filterType.color"
             :count="filterType.count"
 

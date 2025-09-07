@@ -3,8 +3,6 @@ import { ref, computed, watch, nextTick } from 'vue';
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 import { Button } from '~/components/ui/button';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command';
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
-import { ChevronDownIcon, XIcon, CheckIcon } from 'lucide-vue-next';
 import type {OptionItem, OptionGroup} from "@/src/types/helpers/options";
 import {getRawColor} from "~/services/utils/ColorUtils";
 import Badge from "~/components/utils/Badge.vue";
@@ -189,30 +187,6 @@ function onSearchInput(value: string) {
   emit('search', value);
 }
 
-function getInitials(name: string): string {
-  if (!name) return '';
-  const words = name.split(' ').filter(word => word.length > 0);
-  if (words.length === 0) return '';
-  if (words.length === 1) return words[0].charAt(0).toUpperCase();
-  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
-}
-
-function getAvatarBgColor(name: string): string {
-  if (!name) return 'bg-secondary text-secondary-foreground';
-
-  const colors = [
-    'bg-blue-500', 'bg-green-500', 'bg-amber-500', 'bg-red-500',
-    'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
-  ];
-
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const index = Math.abs(hash) % colors.length;
-  return colors[index] + ' text-white';
-}
 
 // Single function to get visual display info for any option
 function getVisualDisplay(option: OptionItem | null) {
@@ -226,14 +200,6 @@ function getVisualDisplay(option: OptionItem | null) {
   }
   if (props.icon && option.icon) {
     return { type: 'icon', value: option.icon };
-  }
-  if (props.avatar) {
-    return {
-      type: 'avatar',
-      value: option.avatar,
-      initials: getInitials(option.label),
-      bgColor: getAvatarBgColor(option.label)
-    };
   }
   return { type: 'none' };
 }
@@ -281,17 +247,6 @@ function isOptionSelected(optionValue: string): boolean {
                   class="flex-shrink-0"
               ></i>
 
-              <!-- Avatar -->
-              <Avatar v-else-if="visual.type === 'avatar'" class="h-6 w-6 flex-shrink-0">
-                <AvatarImage
-                    v-if="visual.value"
-                    :src="visual.value"
-                    :alt="selectedOptions[0].label"
-                />
-                <AvatarFallback :class="visual.bgColor">
-                  {{ visual.initials }}
-                </AvatarFallback>
-              </Avatar>
             </template>
           </template>
 
@@ -302,7 +257,7 @@ function isOptionSelected(optionValue: string): boolean {
         </div>
 
         <div class="flex items-center gap-1 flex-shrink-0">
-          <ChevronDownIcon class="h-4 w-4 opacity-50" />
+          <i class="ri-arrow-down-s-line ri-sm opacity-50"></i>
         </div>
       </Button>
     </PopoverTrigger>
@@ -351,18 +306,6 @@ function isOptionSelected(optionValue: string): boolean {
                     <i :class="visual.value"></i>
                   </template>
 
-                  <template v-else-if="visual.type === 'avatar'">
-                    <Avatar class="h-6 w-6">
-                      <AvatarImage
-                          v-if="visual.value"
-                          :src="visual.value"
-                          :alt="option.label"
-                      />
-                      <AvatarFallback :class="visual.bgColor">
-                        {{ visual.initials }}
-                      </AvatarFallback>
-                    </Avatar>
-                  </template>
                 </template>
 
                 <span class="flex-1">{{ option.label }}</span>
