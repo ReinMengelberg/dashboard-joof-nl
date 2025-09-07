@@ -124,11 +124,11 @@ export const useUserStore = defineStore('UserStore', {
         },
 
         // DELETE
-        async destroy(id: number): Promise<boolean> {
+        async destroy(id: number, password?: string): Promise<boolean> {
             const userService = ensureService()
             const auth = useAuthStore()
             try {
-                const {success} = await userService.delete(id)
+                const {success} = await userService.destroy(id, password ? { password } : undefined)
                 if (success) {
                     // Remove from list
                     this.items = this.items.filter(u => u.id !== id)

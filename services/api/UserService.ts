@@ -58,9 +58,8 @@ export default class UserService extends ApiService {
         return this.patch(`/${userId}`, request);
     }
 
-    // Delete a user by ID
-    public destroy(userId: number): Promise<IApiResponse<null>> {
-        // ApiService.delete has a data param; pass undefined
-        return this.delete(endpoint, data);
+    // Delete a user by ID (optional password body)
+    public destroy(userId: number, payload?: { password?: string }): Promise<IApiResponse<null>> {
+        return this.delete(`/${userId}`, payload);
     }
 }

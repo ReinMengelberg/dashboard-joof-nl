@@ -8,6 +8,7 @@ import {Button} from '@/components/ui/button'
 import {Input} from '@/components/ui/input'
 import NotificationService from '~/services/utils/NotificationService'
 import ErrorService from '~/services/utils/ErrorService'
+import DeleteInterface from "@/components/utils/DeleteInterface.vue";
 
 definePageMeta({
   layout: 'home',
@@ -111,6 +112,23 @@ const passwordForm = reactive({
   confirm: '',
 })
 
+// Delete account adapter for DeleteInterface
+const deleteAccount = async (id: string, password?: string): Promise<boolean> => {
+  const numId = Number(id)
+  if (!numId || isNaN(numId)) {
+    return ErrorService.returnFalse('error', 'Invalid user id')
+  }
+  if (!password) {
+    return ErrorService.returnFalse('warning', 'Password is required')
+  }
+  return await userStore.destroy(numId, password)
+}
+
+const afterDeleteSuccess = async () => {
+  // If the current user deleted themselves, send them to login
+  await navigateTo('/auth/login')
+}
+
 function togglePasswordDialog(force?: boolean) {
   const next = typeof force === 'boolean' ? force : !showPasswordDialog.value
   if (next && !showPasswordDialog.value) {
@@ -205,10 +223,25 @@ async function submitPasswordChange() {
               </Button>
             </div>
           </div>
+          
+          <DeleteInterface
+            :model="userStore.active"
+            :delete="deleteAccount"
+            :after-success="afterDeleteSuccess"
+            title="Delete account"
+            description="Permanently delete your account and all associated data. This action cannot be undone."
+            trigger-label="Delete account"
+            dialog-title="Confirm account deletion"
+            dialog-description="This action cannot be undone. Please enter your password to confirm."
+            confirm-label="Delete account"
+            cancel-label="Cancel"
+            redirect-path="/auth/login"
+            :disabled="!userStore.active?.id"
+          />
         </div>
       </CardContent>
 
-      <CardFooter class="justify-between border-t">
+      <CardFooter class="justify-between items-center gap-4 border-t">
         <div class="text-xs text-muted-foreground">Fields are read-only. Use the actions to update your account.</div>
       </CardFooter>
     </Card>
