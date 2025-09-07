@@ -33,13 +33,13 @@ export const useUserStore = defineStore('UserStore', {
   actions: {
     // LIST
     async fetchList(params: Partial<ListUsersParams> = {}): Promise<boolean> {
-      const svc = ensureService()
+      const userService = ensureService()
       this.listLoading = true
       try {
         const q = params.q ?? this.query
         const skip = params.skip ?? this.skip
         const take = params.take ?? this.take
-        const { data } = await svc.list({ q, skip, take })
+        const { data } = await userService.list({ q, skip, take })
         this.items = data || []
         // persist latest params
         this.query = q ?? ''
@@ -62,11 +62,11 @@ export const useUserStore = defineStore('UserStore', {
     },
 
     // READ ONE
-    async loadById(id: number): Promise<boolean> {
-      const svc = ensureService()
+    async view(id: number): Promise<boolean> {
+      const userService = ensureService()
       this.activeLoading = true
       try {
-        const { data } = await svc.getById(id)
+        const { data } = await userService.getById(id)
         this.active = data
         return true
       } catch (error: any) {
@@ -75,19 +75,13 @@ export const useUserStore = defineStore('UserStore', {
         this.activeLoading = false
       }
     },
-
-    setActive(user: User | null) {
-      this.active = user
-    },
-    clearActive() {
-      this.active = null
-    },
+      
 
     // CREATE
     async create(request: CreateUserRequest): Promise<User | null> {
-      const svc = ensureService()
+      const userService = ensureService()
       try {
-        const { data } = await svc.create(request)
+        const { data } = await userService.create(request)
         if (data) {
           // Optimistically update list
           this.items.unshift(data)
@@ -101,10 +95,10 @@ export const useUserStore = defineStore('UserStore', {
 
     // UPDATE
     async update(id: number, request: UpdateUserRequest): Promise<boolean> {
-      const svc = ensureService()
+      const userService = ensureService()
       const auth = useAuthStore()
       try {
-        const { data } = await svc.update(id, request)
+        const { data } = await userService.update(id, request)
         if (data) {
           // Update in list
           const idx = this.items.findIndex(u => u.id === id)
@@ -127,10 +121,10 @@ export const useUserStore = defineStore('UserStore', {
 
     // DELETE
     async destroy(id: number): Promise<boolean> {
-      const svc = ensureService()
+      const userService = ensureService()
       const auth = useAuthStore()
       try {
-        const { success } = await svc.delete(id)
+        const { success } = await userService.delete(id)
         if (success) {
           // Remove from list
           this.items = this.items.filter(u => u.id !== id)
