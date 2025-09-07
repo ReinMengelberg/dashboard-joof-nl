@@ -13,11 +13,25 @@ export interface ResourceFilters {
 
 export interface CreateResourceRequest {
     name: string;
+    description?: string;
     source: 'joof' | 'angryjobs'
+    administrative?: boolean;
+    outgoing_feeds?: string[];
+    incoming_feeds?: string[];
+    show_incoming?: boolean;
+    only_nl?: boolean;
+    only_unique?: boolean;
 }
 
 export interface UpdateResourceRequest {
     name?: string;
+    description?: string;
+    source?: 'joof' | 'angryjobs';
+    outgoing_feeds?: string[];
+    incoming_feeds?: string[];
+    show_incoming?: boolean;
+    only_nl?: boolean;
+    only_unique?: boolean;
 }
 
 export default class ResourceService extends ApiService {
@@ -83,7 +97,12 @@ export default class ResourceService extends ApiService {
 
     // Update a resource by ID (partial)
     public update(resourceId: number, request: UpdateResourceRequest): Promise<IApiResponse<Resource>> {
-        return this.patch(`/${resourceId}`, request);
+        // Strip out undefined values to avoid sending them to the API
+        const payload = Object.fromEntries(
+            Object.entries(request).filter(([, v]) => v !== undefined)
+        ) as UpdateResourceRequest;
+
+        return this.patch(`/${resourceId}`, payload);
     }
 
     // Delete a resource by ID
@@ -101,3 +120,4 @@ export default class ResourceService extends ApiService {
         return this.delete(`/${resourceId}/assign}`, {user_id: userId});
     }
 }
+
