@@ -19,7 +19,6 @@ export default eventHandler({
 
         // If no user or password mismatch -> 401
         if (!user || user.password !== password) {
-            setResponseStatus(event, 401)
             return ApiResponse.error(401, 'Invalid credentials')
         }
 

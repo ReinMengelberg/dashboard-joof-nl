@@ -32,7 +32,6 @@ class NotificationService {
     }
 
     public showWarning(message: string, duration = 5000): void {
-        console.log('showWarning', message);
         this.emitter.emit('notify', { type: 'warning', message, duration });
     }
 

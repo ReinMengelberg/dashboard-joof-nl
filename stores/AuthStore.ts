@@ -43,12 +43,10 @@ export const useAuthStore = defineStore('auth', {
                     NotificationService.showSuccess('Logged in successfully.')
                     await this.fetchUser()
                     return true
-                } else {
-                    this.error = response.message
-                    return ErrorService.returnFalse('error', response.message || 'Login failed.')
                 }
             } catch (error: any) {
                 console.log("Failed to login")
+                console.log(error)
                 this.error = error.message
                 return ErrorService.returnFalse(error, error?.message || 'Login failed.')
             } finally {
