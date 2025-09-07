@@ -44,7 +44,7 @@ async function onSubmit() {
         <div class="flex items-center">
           <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Password</label>
           <a
-            @click="navigateTo('/auth/reset')"
+            @click="navigateTo('/auth/reset/request')"
             class="ml-auto cursor-pointer inline-block text-sm underline"
           >
             Forgot your password?
