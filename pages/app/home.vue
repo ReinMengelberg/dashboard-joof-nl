@@ -19,7 +19,7 @@ const auth = useAuthStore()
     <Card class="relative w-5xl mx-auto">
       <CardHeader>
         <CardTitle>
-          Welcome<span v-if="auth.currentUser?.name">, {{ auth.currentUser.name }}</span>
+          Welcome back<span v-if="auth.currentUser?.name">, {{ auth.currentUser.name }}</span>
         </CardTitle>
       </CardHeader>
 

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import NotificationService from '~/services/utils/NotificationService'
 import ErrorService from '~/services/utils/ErrorService'
-import AuthService from '~/services/api/AuthService'
 
 definePageMeta({
   layout: 'home',
@@ -42,10 +41,13 @@ const newName = ref('')
 const nameUpdating = ref(false)
 const newEmail = ref('')
 const emailUpdating = ref(false)
-const passwordSending = ref(false)
+const oldPassword = ref('')
+const newPassword = ref('')
+const confirmPassword = ref('')
+const passwordUpdating = ref(false)
 
-const currentEmail = computed(() => auth.currentUser?.email || '')
-const currentName = computed(() => auth.currentUser?.name || '')
+const currentEmail = computed(() => userStore.active?.email || '')
+const currentName = computed(() => userStore.active?.name || '')
 
 function goBack() {
   if (process.client && window.history.length > 1) router.back()
@@ -104,8 +106,6 @@ async function submitEmailChange() {
     }
     const ok = await userStore.update(id, { email: newEmail.value })
     if (ok) {
-      await auth.fetchUser()
-      NotificationService.showSuccess('Updated email')
       showEmailDialog.value = false
       return true
     }
@@ -118,27 +118,43 @@ async function submitEmailChange() {
 }
 
 function openPasswordDialog() {
+  oldPassword.value = ''
+  newPassword.value = ''
+  confirmPassword.value = ''
   showPasswordDialog.value = true
 }
 function closePasswordDialog() {
   showPasswordDialog.value = false
 }
 
-async function sendPasswordReset() {
+async function submitPasswordChange() {
   try {
-    passwordSending.value = true
-    const service = new AuthService()
-    const res = await service.requestReset({ email: currentEmail.value })
-    if (res.success) {
-      NotificationService.showSuccess('Password reset link sent to your email address.')
+    passwordUpdating.value = true
+    const id = auth.currentUser?.id
+    if (!id) {
+      return ErrorService.returnFalse('error', 'No active user')
+    }
+    if (!oldPassword.value || !newPassword.value || !confirmPassword.value) {
+      return ErrorService.returnFalse('warning', 'Please fill in all password fields')
+    }
+    if (newPassword.value !== confirmPassword.value) {
+      return ErrorService.returnFalse('warning', 'New password and confirmation do not match')
+    }
+    const ok = await userStore.update(id, {
+      old_password: oldPassword.value,
+      new_password: newPassword.value,
+      confirm_password: confirmPassword.value,
+    })
+    if (ok) {
+      NotificationService.showSuccess('Password updated')
       showPasswordDialog.value = false
       return true
     }
-    return ErrorService.returnFalse('error', res.message || 'Failed to send reset email')
+    return false
   } catch (e: any) {
-    return ErrorService.returnFalse(e, e?.message || 'Failed to send reset email')
+    return ErrorService.returnFalse(e, e?.message || 'Failed to update password')
   } finally {
-    passwordSending.value = false
+    passwordUpdating.value = false
   }
 }
 </script>
@@ -161,7 +177,10 @@ async function sendPasswordReset() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div class="grid gap-2 sm:col-span-2">
               <label class="text-sm font-medium text-foreground">Name</label>
-              <Input :model-value="currentName" disabled />
+              <Input 
+                  :model-value="userStore.active?.name || ''" 
+                  disabled 
+              />
             </div>
             <div class="flex sm:justify-end sm:col-span-1">
               <Button class="w-full" size="sm" @click="openNameDialog">
@@ -175,7 +194,7 @@ async function sendPasswordReset() {
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
             <div class="grid gap-2 sm:col-span-2">
               <label class="text-sm font-medium text-foreground">Email</label>
-              <Input :model-value="currentEmail" disabled />
+              <Input :model-value="userStore.active?.email || ''" disabled />
             </div>
             <div class="flex sm:justify-end sm:col-span-1">
               <Button class="w-full" size="sm" @click="openEmailDialog">
@@ -262,15 +281,24 @@ async function sendPasswordReset() {
           <h3 class="font-semibold">Change password</h3>
         </div>
         <div class="p-6 grid gap-4">
-          <p class="text-sm text-muted-foreground">
-            We will send a password reset link to <span class="font-medium">{{ currentEmail }}</span>.
-          </p>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium">Current password</label>
+            <Input v-model="oldPassword" type="password" placeholder="Current password" />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium">New password</label>
+            <Input v-model="newPassword" type="password" placeholder="New password" />
+          </div>
+          <div class="grid gap-2">
+            <label class="text-sm font-medium">Confirm new password</label>
+            <Input v-model="confirmPassword" type="password" placeholder="Confirm new password" />
+          </div>
         </div>
         <div class="px-6 py-4 border-t flex justify-end gap-3">
           <Button variant="outline" @click="closePasswordDialog">Cancel</Button>
-          <Button :disabled="passwordSending || !currentEmail" @click="sendPasswordReset">
-            <i class="ri-send-plane-line" aria-hidden="true" />
-            {{ passwordSending ? 'Sending…' : 'Send reset link' }}
+          <Button :disabled="passwordUpdating || !oldPassword || !newPassword || !confirmPassword" @click="submitPasswordChange">
+            <i class="ri-lock-password-line" aria-hidden="true" />
+            {{ passwordUpdating ? 'Saving…' : 'Update password' }}
           </Button>
         </div>
       </div>

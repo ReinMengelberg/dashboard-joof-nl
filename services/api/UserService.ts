@@ -19,7 +19,8 @@ export interface CreateUserRequest {
 export interface UpdateUserRequest {
     name?: string;
     email?: string;
-    password?: string;
+    old_password?: string;
+    new_password?: string;
     confirm_password?: string;
     admin?: boolean;
 }
