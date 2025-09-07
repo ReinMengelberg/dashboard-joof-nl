@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { ApiResponse } from "~~/src/helpers/ApiResponse";
 import { UserRepository } from "~~/server/db/UserRepository";
-import unauthenticated from "~/server/middleware/unauthenticated";
+import unauthenticated from "@/server/utils/middleware/unauthenticated";
 import { setResponseStatus } from 'h3'
 
 const bodySchema = z.object({
@@ -13,7 +13,6 @@ export default eventHandler({
     onRequest: [unauthenticated],
     handler: async (event) => {
         const { email, password } = await readValidatedBody(event, bodySchema.parse)
-
         // Find user in DB
         const user = await UserRepository.findByEmail(email)
 

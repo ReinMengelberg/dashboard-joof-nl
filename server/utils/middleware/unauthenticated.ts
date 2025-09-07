@@ -1,6 +1,6 @@
 import {defineEventHandler, setResponseStatus} from 'h3'
-import {useUserSession} from "~/.nuxt/imports";
-import {ApiResponse} from '~/src/helpers/ApiResponse'
+import {useUserSession} from "@/.nuxt/imports";
+import {ApiResponse} from '@/src/helpers/ApiResponse'
 
 export default defineEventHandler(async (event) => {
     const path = getRequestURL(event).pathname
