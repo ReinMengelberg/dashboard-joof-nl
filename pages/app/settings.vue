@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from '#imports'
 import { useAuthStore } from '~/stores/AuthStore'
 import { useUserStore } from '~/stores/UserStore'
@@ -18,6 +18,19 @@ definePageMeta({
 const auth = useAuthStore()
 const userStore = useUserStore()
 const router = useRouter()
+
+// Ensure the active user in UserStore is set to the authenticated user
+watch(
+  () => auth.currentUser?.id,
+  (id) => {
+    if (id) {
+      userStore.view(id)
+    } else {
+      userStore.active = null
+    }
+  },
+  { immediate: true }
+)
 
 // Local UI state for dialogs
 const showNameDialog = ref(false)
