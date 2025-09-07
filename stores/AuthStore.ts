@@ -42,6 +42,7 @@ export const useAuthStore = defineStore('auth', {
                 if (response.success) {
                     NotificationService.showSuccess('Logged in successfully.')
                     await this.fetchUser()
+                    navigateTo('/app/home')
                     return true
                 }
             } catch (error: any) {
@@ -82,10 +83,8 @@ export const useAuthStore = defineStore('auth', {
                 if (response.success) {
                     this.user = null
                     NotificationService.showInfo('Logged out.')
+                    navigateTo('/auth/login')
                     return true
-                } else {
-                    this.error = response.message
-                    return ErrorService.returnFalse('error', response.message || 'Logout failed.')
                 }
             } catch (error: any) {
                 this.error = error.message
