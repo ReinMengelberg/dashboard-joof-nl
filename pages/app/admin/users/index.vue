@@ -9,6 +9,12 @@ import { useAuthStore } from '~/stores/AuthStore'
 const users = useUserStore()
 const auth = useAuthStore()
 
+definePageMeta({
+  name: 'Users',
+  layout: 'home',
+  middleware: ['authenticated', 'admin'],
+})
+
 onMounted(async () => {
   // Initial load
   await users.load(users.search || '', users.filters || {}, users.sort, users.order, 1, users.per_page || 10)
