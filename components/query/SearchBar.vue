@@ -245,11 +245,6 @@ function initFilterDefaults() {
         if (defaultValue !== undefined) {
           onFilterChange(filterType, defaultValue);
         }
-      } else if (props.store.listOptions) { // Fallback to API options
-        const optionsData = props.store.listOptions[filterType];
-        if (optionsData && optionsData.default !== undefined) {
-          onFilterChange(filterType, optionsData.default);
-        }
       }
     }
   });
@@ -289,15 +284,6 @@ function getOptionsList(type: string): OptionItem[] {
   if (filterConfig?.options && filterConfig.options.length > 0) {
     return filterConfig.options[0]?.list || [];
   }
-  const options = props.store.listOptions?.[type];
-  if (!options) return [];
-  if (options.list && Array.isArray(options.list)) {
-    return options.list;
-  }
-  // If options is directly an array of OptionItems
-  if (Array.isArray(options)) {
-    return options as OptionItem[];
-  }
   return [];
 }
 
@@ -332,7 +318,7 @@ function hasOptions(type: string): boolean {
   if (filterConfig?.options && filterConfig.options.length > 0) {
     return true;
   }
-  return !!props.store.listOptions?.[type];
+  return false;
 }
 </script>
 
