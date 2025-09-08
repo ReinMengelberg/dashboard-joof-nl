@@ -19,7 +19,8 @@ export {
     TableCaption,
     TableContainer,
     TableAction,
-    TableEmpty
+    TableEmpty,
+    TableSkeleton
 }
 
 
